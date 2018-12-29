@@ -25,12 +25,19 @@ This is a simulation of a fire alarm system. It monitors data from temperature s
 
 # World Ablaze #
 
-As proof of concept, a small, simulated world in which any given object may spontaneously erupt in flames.
+As proof of concept, a small, simulated world in which any given object may 
+spontaneously erupt in flames.
+    
+<!-- TODO -->
+Conduction/convection heat distribution to sensor pick-up from python project
+    * Time / turns, item.updateStatus() in room spots
+Observer Pattern for sensors
 
 ## Planned Capabilities ##
 
 - Hand-built 'map' with a grid of buildings and assorted objects
-    - Stationary objects which all have a chance to spontaneously combust, igniting a fire to test the alert system
+    - Stationary objects which all have a chance to spontaneously combust, 
+    igniting a fire to test the alert system
     - Mobile 'NPCs' which also have such a chance to combust
     - Use of local alert just as it would function in a real-world system
     - A local, simulated authority who may respond to and put out these fires
