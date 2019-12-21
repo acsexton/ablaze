@@ -20,6 +20,14 @@ public class Sensor extends WorldItem {
       return alerted;
    }
 
+   public void triggerAlarm(){
+      alerted = true;
+   }
+
+   public void stopAlarm(){
+      alerted = false;
+   }
+
    public void updateStatus(){
       alerted = this.getCurrentTemperature() >= alarmThreshold;
    }
