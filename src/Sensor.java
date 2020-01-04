@@ -1,14 +1,13 @@
-public class Sensor extends WorldItem {
+public class Sensor extends NonFlammableItem {
 
    private static final String DEFAULT_SENSOR_NAME = "sensor";
-   private static final boolean DEFAULT_SENSOR_FLAMMABILITY = false;
    private static final int DEFAULT_ALARM_THRESHOLD = 100;
 
    private int alarmThreshold;
    private boolean alerted;
 
    public Sensor(){
-      super(DEFAULT_SENSOR_NAME, DEFAULT_SENSOR_FLAMMABILITY);
+      super(DEFAULT_SENSOR_NAME);
       alarmThreshold = DEFAULT_ALARM_THRESHOLD;
    }
 
@@ -29,7 +28,7 @@ public class Sensor extends WorldItem {
    }
 
    public void updateStatus(){
-      alerted = this.getCurrentTemperature() >= alarmThreshold;
+      alerted = getCurrentTemperature() >= alarmThreshold;
    }
 
 }

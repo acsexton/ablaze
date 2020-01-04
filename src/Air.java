@@ -1,9 +1,7 @@
-public class Air extends WorldItem {
+public class Air extends NonFlammableItem {
 
    public Air(){
-      super("air", false);
+      super("air");
    }
-
-   // TODO: updateStatus()
 
 }
