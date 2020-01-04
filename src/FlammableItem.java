@@ -19,8 +19,8 @@ public class FlammableItem extends WorldItem {
       return combustionThreshold;
    }
 
-   public void setOnFire(boolean setFire){
-      onFire = setFire;
+   public void setOnFire(){
+      onFire = true;
    }
 
    public void quench(){

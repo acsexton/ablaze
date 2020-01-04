@@ -12,12 +12,12 @@ public class Room extends WorldItem {
       fillRoomWithAir();
    }
 
-   public boolean checkPointExists(int xCoord, int yCoord){
-      return (xCoord < xSize && yCoord <= ySize);
+   public boolean pointExists(int xCoord, int yCoord){
+      return (xCoord <= xSize && yCoord <= ySize);
    }
 
    public Point getPointAtCoords(int xCoord, int yCoord){
-      if (checkPointExists(xCoord, yCoord)){
+      if (pointExists(xCoord, yCoord)){
          return roomPoints[xCoord][yCoord];
       } else {
          return null;
@@ -55,12 +55,10 @@ public class Room extends WorldItem {
       return null;
    }
 
-   public void placeItemInRoom(String name, Point roomCoords){
-      int x = roomCoords.getxCoord();
-      int y = roomCoords.getyCoord();
-      if (x <= xSize && y <= ySize){
-         WorldItem newItem = new FlammableItem(name);
-         roomPoints[x][y].placeItem(newItem);
+   public void placeItemInRoomAtCoords(WorldItem item, int xCoord, int yCoord){
+      if (pointExists(xCoord, yCoord)){
+         Point targetPoint = getPointAtCoords(xCoord, yCoord);
+         targetPoint.placeItem(item);
       }
    }
 
