@@ -2,23 +2,33 @@ public class Room extends WorldItem {
 
    private int xSize;
    private int ySize;
-   private WorldItem[][] roomSpots;
-
-   private static final boolean DEFAULT_ROOM_FLAMMABILITY = false;
+   private Point[][] roomPoints;
 
    public Room(String roomName, int xSize, int ySize){
-      super(roomName, DEFAULT_ROOM_FLAMMABILITY);
+      super(roomName);
       this.xSize = xSize;
       this.ySize = ySize;
-      roomSpots = new WorldItem[xSize][ySize];
+      roomPoints = new Point[xSize][ySize];
       fillRoomWithAir();
+   }
+
+   public boolean checkPointExists(int xCoord, int yCoord){
+      return (xCoord < xSize && yCoord <= ySize);
+   }
+
+   public Point getPointAtCoords(int xCoord, int yCoord){
+      if (checkPointExists(xCoord, yCoord)){
+         return roomPoints[xCoord][yCoord];
+      } else {
+         return null;
+      }
    }
 
    private void fillRoomWithAir(){
       for (int i = 0; i < xSize; i++) {
          for (int j = 0; j < ySize; j++) {
             Air emptySpace = new Air();
-            roomSpots[i][j] = emptySpace;
+            roomPoints[i][j] = new Point(i, j, emptySpace);
          }
       }
    }
@@ -35,34 +45,32 @@ public class Room extends WorldItem {
    public WorldItem findItem(String search){
       for (int i = 0; i < xSize; i++) {
          for (int j = 0; j < ySize; j++) {
-            WorldItem check = getItem(i, j);
-            if (check.getName().equals(search)){
-               return check;
+            Point updatePoint = getPointAtCoords(i, j);
+            WorldItem item = updatePoint.getContainedItem();
+            if (item.getName().equals(search)){
+               return item;
             }
          }
       }
       return null;
    }
 
-   // TODO: Validate location check
-   public void placeItem(String name, boolean flammable, int xCoord,
-                         int yCoord){
-      if (xCoord <= xSize && yCoord <= ySize){
-         WorldItem newItem = new WorldItem(name, flammable);
-         roomSpots[xCoord][yCoord] = newItem;
+   public void placeItemInRoom(String name, Point roomCoords){
+      int x = roomCoords.getxCoord();
+      int y = roomCoords.getyCoord();
+      if (x <= xSize && y <= ySize){
+         WorldItem newItem = new FlammableItem(name);
+         roomPoints[x][y].placeItem(newItem);
       }
-   }
-
-   // TODO: Validate location check
-   public WorldItem getItem(int xCoord, int yCoord) {
-      return roomSpots[xCoord][yCoord];
    }
 
    public void updateStatus(){
       for (int i = 0; i < xSize; i++) {
          for (int j = 0; j < ySize; j++) {
-            getItem(i, j).updateStatus();
-            // TODO: This is where calculations are called
+            Point updatePoint = getPointAtCoords(i, j);
+            WorldItem item = updatePoint.getContainedItem();
+            item.updateTemp();
+            item.updateStatus();
          }
       }
    }
@@ -72,7 +80,8 @@ public class Room extends WorldItem {
       String output = "";
       for (int i = 0; i < xSize; i++){
          for (int j = 0; j < ySize; j++){
-            WorldItem item = getItem(i, j);
+            Point updatePoint = getPointAtCoords(i, j);
+            WorldItem item = updatePoint.getContainedItem();
             output += "|";
             if (item instanceof Air){
                output += " ";
@@ -85,8 +94,12 @@ public class Room extends WorldItem {
                }
             }
             else{
-               if (item.isOnFire()){
-                  output += "^";
+               if (item instanceof FlammableItem){
+                  if (((FlammableItem) item).isOnFire()){
+                     output += "^";
+                  } else {
+                     output += "x";
+                  }
                } else {
                   output += "x";
                }
