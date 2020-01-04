@@ -1,50 +1,50 @@
 public class Room extends WorldItem {
 
-   private int xSize;
-   private int ySize;
+   private int rows;
+   private int columns;
    private Point[][] roomPoints;
 
-   public Room(String roomName, int xSize, int ySize){
+   public Room(String roomName, int rows, int columns){
       super(roomName);
-      this.xSize = xSize;
-      this.ySize = ySize;
-      roomPoints = new Point[xSize][ySize];
+      this.rows = rows;
+      this.columns = columns;
+      roomPoints = new Point[columns][rows];
       fillRoomWithAir();
    }
 
-   public boolean pointExists(int xCoord, int yCoord){
-      return (xCoord <= xSize && yCoord <= ySize);
+   public boolean pointExists(int row, int column){
+      return (row <= rows && column <= columns);
    }
 
-   public Point getPointAtCoords(int xCoord, int yCoord){
-      if (pointExists(xCoord, yCoord)){
-         return roomPoints[xCoord][yCoord];
+   public Point getPointAtCoords(int row, int column){
+      if (pointExists(row, column)){
+         return roomPoints[column][row];
       } else {
          return null;
       }
    }
 
    private void fillRoomWithAir(){
-      for (int i = 0; i < xSize; i++) {
-         for (int j = 0; j < ySize; j++) {
+      for (int i = 0; i < rows; i++) {
+         for (int j = 0; j < columns; j++) {
             Air emptySpace = new Air();
-            roomPoints[i][j] = new Point(i, j, emptySpace);
+            roomPoints[j][i] = new Point(j, i, emptySpace);
          }
       }
    }
 
-   public int getxSize(){
-      return xSize;
+   public int getRows(){
+      return rows;
    }
 
-   public int getySize() {
-      return ySize;
+   public int getColumns() {
+      return columns;
    }
 
    // TODO: This'll need validation
    public WorldItem findItem(String search){
-      for (int i = 0; i < xSize; i++) {
-         for (int j = 0; j < ySize; j++) {
+      for (int i = 0; i < rows; i++) {
+         for (int j = 0; j < columns; j++) {
             Point updatePoint = getPointAtCoords(i, j);
             WorldItem item = updatePoint.getContainedItem();
             if (item.getName().equals(search)){
@@ -55,16 +55,16 @@ public class Room extends WorldItem {
       return null;
    }
 
-   public void placeItemInRoomAtCoords(WorldItem item, int xCoord, int yCoord){
-      if (pointExists(xCoord, yCoord)){
-         Point targetPoint = getPointAtCoords(xCoord, yCoord);
+   public void placeItemInRoomAtCoords(WorldItem item, int row, int column){
+      if (pointExists(row, column)){
+         Point targetPoint = getPointAtCoords(row, column);
          targetPoint.placeItem(item);
       }
    }
 
    public void updateStatus(){
-      for (int i = 0; i < xSize; i++) {
-         for (int j = 0; j < ySize; j++) {
+      for (int i = 0; i < rows; i++) {
+         for (int j = 0; j < columns; j++) {
             Point updatePoint = getPointAtCoords(i, j);
             WorldItem item = updatePoint.getContainedItem();
             item.updateTemp();
@@ -76,8 +76,8 @@ public class Room extends WorldItem {
    // TODO: Clean this up
    public String toString(){
       String output = "";
-      for (int i = 0; i < xSize; i++){
-         for (int j = 0; j < ySize; j++){
+      for (int i = 0; i < rows; i++){
+         for (int j = 0; j < columns; j++){
             Point updatePoint = getPointAtCoords(i, j);
             WorldItem item = updatePoint.getContainedItem();
             output += "|";

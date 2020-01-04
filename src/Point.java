@@ -1,21 +1,21 @@
 public class Point {
 
-   private final int xCoord;
-   private final int yCoord;
+   private final int row;
+   private final int column;
    private WorldItem containedItem;
 
-   public Point(int xCoord, int yCoord, WorldItem containedItem){
-      this.xCoord = xCoord;
-      this.yCoord = yCoord;
+   public Point(int row, int column, WorldItem containedItem){
+      this.row = row;
+      this.column = column;
       this.containedItem = containedItem;
    }
 
-   public int getxCoord() {
-      return xCoord;
+   public int getRow() {
+      return row;
    }
 
-   public int getyCoord() {
-      return yCoord;
+   public int getColumn() {
+      return column;
    }
 
    public void placeItem(WorldItem containedItem){
