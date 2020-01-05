@@ -44,7 +44,7 @@ public class Room extends WorldItem {
 
    public void placeItemInRoomAtCoords(WorldItem item, int row, int column){
       Point targetPoint = getPointAtLocation(row, column);
-      targetPoint.placeItem(item);
+      targetPoint.setContainedItem(item);
       if (item instanceof FlammableItem){
          flammableItemCount++;
       }
@@ -52,7 +52,7 @@ public class Room extends WorldItem {
 
    public void updateIgnition(Point point, FlammableItem flammable){
       if (!flammable.isOnFire()){
-         if (point.getCurrentTemperature() >= flammable.getCombustionThreshold()) {
+         if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
             flammable.ignite();
             itemsOnFire++;
          }
@@ -61,10 +61,10 @@ public class Room extends WorldItem {
 
    public void updateAlarm(Point point, FireAlarm alarm){
       if (!alarm.isAlerted()){
-         if (point.getCurrentTemperature() >= alarm.getAlarmThreshold()){
+         if (point.getCurrentTemp() >= alarm.getAlarmThreshold()){
             alarm.triggerAlarm();
          }
-      } else if (point.getCurrentTemperature() < alarm.getAlarmThreshold()){
+      } else if (point.getCurrentTemp() < alarm.getAlarmThreshold()){
          alarm.stopAlarm();
       }
    }
@@ -82,6 +82,79 @@ public class Room extends WorldItem {
             }
          }
       }
+   }
+
+   public void calculatePointTemps(Point point){
+      WorldItem containedItem = point.getContainedItem();
+
+      // Maintain temperature if the item here is flammable and on fire
+      if (containedItem instanceof FlammableItem){
+         if (((FlammableItem) containedItem).isOnFire()){
+            return;
+         }
+      }
+
+      // 1 kW raises temp by 100deg C assuming almost no air flow
+      int kWDegreeIncrease = 100;
+
+      // Temperature factors
+      int radQDot = calcRadQDot(point);
+      int convQDot = calcConvQDot(point);
+      int totalQDot = radQDot + convQDot;
+
+      point.setCurrentTemp(kWDegreeIncrease*totalQDot);
+   }
+
+   public int calcRadQDot(Point point){
+      return 1;
+   }
+
+   public int calcConvQDot(Point point){
+      return 1;
+   }
+
+   public Point[] getSpacesOneAway(Point point){
+      int col = point.getColumn();
+      int row = point.getRow();
+      int surrounding = 7;
+
+      Point[] oneAway = new Point[surrounding];
+
+      // Clockwise around point
+      Point topLeft = getPointAtLocation(row+1, col-1);
+      if (topLeft != null){
+         oneAway[0] = topLeft;
+      }
+      Point top = getPointAtLocation(row+1, col);
+      if (top != null){
+         oneAway[1] = top;
+      }
+      Point topRight = getPointAtLocation(row+1, col+1);
+      if (topRight != null){
+         oneAway[2] = topRight;
+      }
+      Point left = getPointAtLocation(row, col-1);
+      if (left != null){
+         oneAway[3] = left;
+      }
+      Point right = getPointAtLocation(row, col+1);
+      if (right != null){
+         oneAway[4] = right;
+      }
+      Point bottomLeft = getPointAtLocation(row-1, col-1);
+      if (bottomLeft != null){
+         oneAway[5] = bottomLeft;
+      }
+      Point bottom = getPointAtLocation(row-1, col);
+      if (bottom != null) {
+         oneAway[6] = bottom;
+      }
+      Point bottomRight = getPointAtLocation(row-1, col+1);
+      if (bottomRight != null) {
+         oneAway[7] = bottomRight;
+      }
+
+      return oneAway;
    }
 
    public boolean isAllBurntUp(){
