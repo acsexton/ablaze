@@ -8,11 +8,6 @@ public class Point {
    private int currentTemp;
    private WorldItem containedItem;
 
-   // Temperature factors
-   private int radQDot;
-   private int convQDot;
-   private int totalQDot;
-
    public Point(int row, int column, WorldItem containedItem){
       this.row = row;
       this.column = column;
@@ -27,7 +22,7 @@ public class Point {
       return column;
    }
 
-   public int getCurrentTemperature() {
+   public int getCurrentTemp() {
       return currentTemp;
    }
 
@@ -39,7 +34,7 @@ public class Point {
       currentTemp = newTemp;
    }
 
-   public void placeItem(WorldItem containedItem){
+   public void setContainedItem(WorldItem containedItem){
       this.containedItem = containedItem;
    }
 
@@ -47,19 +42,7 @@ public class Point {
       return containedItem;
    }
 
-   public void calculateTemp(){
-      // 1 kW raises temp by 100deg C assuming almost no air flow
-      int kWDegreeIncrease = 100;
-
-      totalQDot = radQDot + convQDot;
-      currentTemp = kWDegreeIncrease*totalQDot;
-
-      // Reset to 0 for further recalculations
-      totalQDot = 0;
-   }
-
    public void update(){
-      calculateTemp();
    }
 
 }
