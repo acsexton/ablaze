@@ -50,17 +50,22 @@ public class Room extends WorldItem {
       }
    }
 
-   public void updateStatus(){
+   public void updateIgnition(Point point, WorldItem item){
+      if (item instanceof FlammableItem){
+         if (point.getCurrentTemperature() >= ((FlammableItem) item).getCombustionThreshold()) {
+            ((FlammableItem) item).ignite();
+            itemsOnFire++;
+         }
+      }
+   }
+
+   public void update(){
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
+            Point point = getPointAtLocation(i, j);
             WorldItem item = getItemAtLocation(i, j);
-            item.updateTemp();
-            item.updateStatus();
-            if (item instanceof FlammableItem){
-               if (((FlammableItem) item).isOnFire()){
-                  itemsOnFire++;
-               }
-            }
+            point.update();
+            updateIgnition(point, item);
          }
       }
    }

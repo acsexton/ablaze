@@ -25,13 +25,6 @@ public class FlammableItem extends WorldItem {
 
    public void quench(){
       onFire = false;
-      resetTemp();
-   }
-
-   public void updateStatus(){
-      if (!onFire) {
-         onFire = (getCurrentTemperature() >= combustionThreshold);
-      }
    }
 
 }

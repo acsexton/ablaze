@@ -30,7 +30,7 @@ public class Driver {
          if (turns == turnsBeforeIgnitingChair){
             chair.ignite();
          }
-         testRoom.updateStatus();
+         testRoom.update();
          System.out.println(testRoom);
       }
    }
