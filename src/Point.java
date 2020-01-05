@@ -47,15 +47,19 @@ public class Point {
       return containedItem;
    }
 
-   public void update(){
+   public void calculateTemp(){
       // 1 kW raises temp by 100deg C assuming almost no air flow
       int kWDegreeIncrease = 100;
 
       totalQDot = radQDot + convQDot;
-      int currentTemp = kWDegreeIncrease*totalQDot;
+      currentTemp = kWDegreeIncrease*totalQDot;
 
       // Reset to 0 for further recalculations
       totalQDot = 0;
+   }
+
+   public void update(){
+      calculateTemp();
    }
 
 }

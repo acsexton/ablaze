@@ -27,8 +27,4 @@ public class FireAlarm extends NonFlammableItem {
       alerted = false;
    }
 
-   public void updateStatus(){
-      alerted = getCurrentTemperature() >= alarmThreshold;
-   }
-
 }

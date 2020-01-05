@@ -50,12 +50,22 @@ public class Room extends WorldItem {
       }
    }
 
-   public void updateIgnition(Point point, WorldItem item){
-      if (item instanceof FlammableItem){
-         if (point.getCurrentTemperature() >= ((FlammableItem) item).getCombustionThreshold()) {
-            ((FlammableItem) item).ignite();
+   public void updateIgnition(Point point, FlammableItem flammable){
+      if (!flammable.isOnFire()){
+         if (point.getCurrentTemperature() >= flammable.getCombustionThreshold()) {
+            flammable.ignite();
             itemsOnFire++;
          }
+      }
+   }
+
+   public void updateAlarm(Point point, FireAlarm alarm){
+      if (!alarm.isAlerted()){
+         if (point.getCurrentTemperature() >= alarm.getAlarmThreshold()){
+            alarm.triggerAlarm();
+         }
+      } else if (point.getCurrentTemperature() < alarm.getAlarmThreshold()){
+         alarm.stopAlarm();
       }
    }
 
@@ -65,7 +75,11 @@ public class Room extends WorldItem {
             Point point = getPointAtLocation(i, j);
             WorldItem item = getItemAtLocation(i, j);
             point.update();
-            updateIgnition(point, item);
+            if (item instanceof FlammableItem){
+               updateIgnition(point, (FlammableItem) item);
+            } else if (item instanceof FireAlarm){
+               updateAlarm(point, (FireAlarm) item);
+            }
          }
       }
    }
