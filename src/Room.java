@@ -6,29 +6,21 @@ public class Room extends WorldItem {
 
    public Room(String roomName, int rows, int columns){
       super(roomName);
-      this.rows = rows;
-      this.columns = columns;
-      roomPoints = new Point[columns][rows];
+      this.rows = rows+1;
+      this.columns = columns+1;
+      roomPoints = new Point[this.rows][this.columns];
       fillRoomWithAir();
    }
 
-   public boolean pointExists(int row, int column){
-      return (row <= rows && column <= columns);
-   }
-
-   public Point getPointAtCoords(int row, int column){
-      if (pointExists(row, column)){
-         return roomPoints[column][row];
-      } else {
-         return null;
-      }
+   public Point getPointAtLocation(int row, int column){
+      return roomPoints[row][column];
    }
 
    private void fillRoomWithAir(){
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
             Air emptySpace = new Air();
-            roomPoints[j][i] = new Point(j, i, emptySpace);
+            roomPoints[i][j] = new Point(i, j, emptySpace);
          }
       }
    }
@@ -45,7 +37,7 @@ public class Room extends WorldItem {
    public WorldItem findItem(String search){
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
-            Point updatePoint = getPointAtCoords(i, j);
+            Point updatePoint = getPointAtLocation(i, j);
             WorldItem item = updatePoint.getContainedItem();
             if (item.getName().equals(search)){
                return item;
@@ -56,16 +48,14 @@ public class Room extends WorldItem {
    }
 
    public void placeItemInRoomAtCoords(WorldItem item, int row, int column){
-      if (pointExists(row, column)){
-         Point targetPoint = getPointAtCoords(row, column);
-         targetPoint.placeItem(item);
-      }
+      Point targetPoint = getPointAtLocation(row, column);
+      targetPoint.placeItem(item);
    }
 
    public void updateStatus(){
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
-            Point updatePoint = getPointAtCoords(i, j);
+            Point updatePoint = getPointAtLocation(i, j);
             WorldItem item = updatePoint.getContainedItem();
             item.updateTemp();
             item.updateStatus();
@@ -78,14 +68,14 @@ public class Room extends WorldItem {
       String output = "";
       for (int i = 0; i < rows; i++){
          for (int j = 0; j < columns; j++){
-            Point updatePoint = getPointAtCoords(i, j);
+            Point updatePoint = getPointAtLocation(i, j);
             WorldItem item = updatePoint.getContainedItem();
             output += "|";
             if (item instanceof Air){
                output += " ";
             }
-            else if (item instanceof Sensor){
-               if (((Sensor) item).isAlerted()){
+            else if (item instanceof FireAlarm){
+               if (((FireAlarm) item).isAlerted()){
                   output += "!";
                } else {
                   output += "?";

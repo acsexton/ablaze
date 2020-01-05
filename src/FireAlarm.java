@@ -1,4 +1,4 @@
-public class Sensor extends NonFlammableItem {
+public class FireAlarm extends NonFlammableItem {
 
    private static final String DEFAULT_SENSOR_NAME = "sensor";
    private static final int DEFAULT_ALARM_THRESHOLD = 100;
@@ -6,7 +6,7 @@ public class Sensor extends NonFlammableItem {
    private int alarmThreshold;
    private boolean alerted;
 
-   public Sensor(){
+   public FireAlarm(){
       super(DEFAULT_SENSOR_NAME);
       alarmThreshold = DEFAULT_ALARM_THRESHOLD;
    }
