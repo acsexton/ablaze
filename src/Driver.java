@@ -18,13 +18,18 @@ public class Driver {
       testRoom.placeItemInRoomAtCoords(sensor, sensorRow, sensorColumn);
    }
 
-   public static void placeExtraItems(){
+   public static void runSim(){
+      int turns = 0;
+      int turnsBeforeIgnitingChair = 4;
+
       FlammableItem chair = new FlammableItem("Chair");
       testRoom.placeItemInRoomAtCoords(chair, 5, 7);
-   }
 
-   public static void runSim(){
-      while (!sensor.isAlerted()){
+      while (!testRoom.isAllBurntUp()){
+         turns++;
+         if (turns == turnsBeforeIgnitingChair){
+            chair.ignite();
+         }
          testRoom.updateStatus();
          System.out.println(testRoom);
       }
@@ -32,7 +37,6 @@ public class Driver {
 
    public static void main(String[] args) {
       buildRoomAndPlaceSensor();
-      placeExtraItems();
       runSim();
    }
 

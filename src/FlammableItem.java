@@ -19,7 +19,7 @@ public class FlammableItem extends WorldItem {
       return combustionThreshold;
    }
 
-   public void setOnFire(){
+   public void ignite(){
       onFire = true;
    }
 
