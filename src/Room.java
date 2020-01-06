@@ -8,6 +8,17 @@ public class Room extends WorldItem {
    private Point[] fireLocations;
    private Point[][] roomPoints;
 
+   // Math!
+   private final static int SURROUNDING_POINTS_ON_GRID = 8;
+
+   // Physics!
+   private final static double XR_FOR_AIR_IN_ROOM = 0.15;
+   private final static int QDOT_FOR_AIR_IN_ROOM = 100;
+   private final static double HEAT_TRANSFER_COEFFICIENT = 0.01;
+   // 1 kW raises temp by 100deg C assuming almost no air flow
+   private final static int KW_DEGREE_INCREASE = 100;
+
+
    public Room(String roomName, int rows, int columns, int numOfFires){
       super(roomName);
       this.rows = rows+1;
@@ -21,7 +32,12 @@ public class Room extends WorldItem {
    }
 
    public Point getPointAtLocation(int row, int column){
-      return roomPoints[row][column];
+      if (row < this.rows && column <= this.columns){
+         return roomPoints[row][column];
+      }
+      else {
+         return null;
+      }
    }
 
    public WorldItem getItemAtLocation(int row, int column){
@@ -82,6 +98,7 @@ public class Room extends WorldItem {
          for (int j = 0; j < columns; j++) {
             Point point = getPointAtLocation(i, j);
             WorldItem item = getItemAtLocation(i, j);
+            calculatePointTemp(point);
             point.update();
             if (item instanceof FlammableItem){
                updateIgnition(point, (FlammableItem) item);
@@ -92,7 +109,7 @@ public class Room extends WorldItem {
       }
    }
 
-   public void calculatePointTemps(Point point){
+   public void calculatePointTemp(Point point){
       WorldItem containedItem = point.getContainedItem();
 
       // Maintain temperature if the item here is flammable and on fire
@@ -102,15 +119,12 @@ public class Room extends WorldItem {
          }
       }
 
-      // 1 kW raises temp by 100deg C assuming almost no air flow
-      int kWDegreeIncrease = 100;
-
       // Temperature factors
       double radQDot = calcRadQDot(point);
-      int convQDot = calcConvQDot(point);
+      double convQDot = calcConvQDot(point);
       double totalQDot = radQDot + convQDot;
 
-      point.setCurrentTemp(kWDegreeIncrease*totalQDot);
+      point.setCurrentTemp(KW_DEGREE_INCREASE*totalQDot);
    }
 
    public double calcRadQDot(Point point){
@@ -118,18 +132,18 @@ public class Room extends WorldItem {
       int currentRow = point.getRow();
       double minDist = 0;
       for (Point fire : fireLocations){
-         int fireCol = fire.getColumn();
-         int fireRow = fire.getRow();
-         double dist = distFromFire(currentCol, currentRow, fireCol, fireRow);
-         if (dist < minDist){
-            minDist = dist;
+         if (fire != null){
+            int fireCol = fire.getColumn();
+            int fireRow = fire.getRow();
+            double dist = distFromFire(currentCol, currentRow, fireCol, fireRow);
+            if (dist < minDist){
+               minDist = dist;
+            }
          }
       }
 
       // Xr * qDot for air in room
-      double xr = 0.15;
-      int qDot = 100;
-      double factor = (xr * qDot);
+      double factor = (XR_FOR_AIR_IN_ROOM * QDOT_FOR_AIR_IN_ROOM);
 
       // Account for division by zero
       if (minDist > 0){
@@ -144,14 +158,24 @@ public class Room extends WorldItem {
       return Math.sqrt(Math.pow((x2-x1), 2) + Math.pow((y2-y1), 2));
    }
 
-   public int calcConvQDot(Point point){
-      return 1;
+   public double calcConvQDot(Point point){
+      Point[] oneAway = getSpacesOneAway(point);
+      int localAverage = getAverageSurroundingTemp(oneAway);
+      double currentTemp = point.getCurrentTemp();
+
+      if (localAverage > currentTemp){
+         return (HEAT_TRANSFER_COEFFICIENT * (localAverage - currentTemp));
+      } else {
+         return (HEAT_TRANSFER_COEFFICIENT * (currentTemp - localAverage));
+      }
    }
 
    public int getAverageSurroundingTemp(Point[] spacesOneAway){
       int total = 0;
       for (Point point : spacesOneAway){
-         total += point.getCurrentTemp();
+         if (point != null){
+            total += point.getCurrentTemp();
+         }
       }
       return total / spacesOneAway.length;
    }
@@ -159,45 +183,61 @@ public class Room extends WorldItem {
    public Point[] getSpacesOneAway(Point point){
       int col = point.getColumn();
       int row = point.getRow();
-      int surrounding = 7;
 
-      Point[] oneAway = new Point[surrounding];
+      Point[] oneAway = new Point[SURROUNDING_POINTS_ON_GRID];
 
-      // Clockwise around point
-      Point topLeft = getPointAtLocation(row+1, col-1);
-      if (topLeft != null){
-         oneAway[0] = topLeft;
+      // Clockwise around point.
+      // TODO: Constant above is fine. Fix magic numbers...
+      int aboveRow = row-1;
+      int belowRow = row+1;
+      int leftCol = col+1;
+      int rightCol = col-1;
+      if (pointExists(aboveRow, leftCol)){
+         oneAway[0] = getPointAtLocation(aboveRow, leftCol);;
+      } else {
+         oneAway[0] = null;
       }
-      Point top = getPointAtLocation(row+1, col);
-      if (top != null){
-         oneAway[1] = top;
+      if (pointExists(aboveRow, col)){
+         oneAway[1] = getPointAtLocation(aboveRow, col);
+      } else {
+         oneAway[1] = null;
       }
-      Point topRight = getPointAtLocation(row+1, col+1);
-      if (topRight != null){
-         oneAway[2] = topRight;
+      if (pointExists(aboveRow, rightCol)){
+         oneAway[2] = getPointAtLocation(aboveRow, rightCol);
+      } else {
+         oneAway[2] = null;
       }
-      Point left = getPointAtLocation(row, col-1);
-      if (left != null){
-         oneAway[3] = left;
+      if (pointExists(row, leftCol)){
+         oneAway[3] = getPointAtLocation(row, leftCol);
+      } else {
+         oneAway[3] = null;
       }
-      Point right = getPointAtLocation(row, col+1);
-      if (right != null){
-         oneAway[4] = right;
+      if (pointExists(row, rightCol)){
+         oneAway[4] = getPointAtLocation(row, rightCol);
+      } else {
+         oneAway[4] = null;
       }
-      Point bottomLeft = getPointAtLocation(row-1, col-1);
-      if (bottomLeft != null){
-         oneAway[5] = bottomLeft;
+      if (pointExists(belowRow, leftCol)){
+         oneAway[5] = getPointAtLocation(belowRow, leftCol);
+      } else {
+         oneAway[5] = null;
       }
-      Point bottom = getPointAtLocation(row-1, col);
-      if (bottom != null) {
-         oneAway[6] = bottom;
+      if (pointExists(belowRow, col)){
+         oneAway[6] = getPointAtLocation(belowRow, col);
+      } else {
+         oneAway[6] = null;
       }
-      Point bottomRight = getPointAtLocation(row-1, col+1);
-      if (bottomRight != null) {
-         oneAway[7] = bottomRight;
+      if (pointExists(belowRow, rightCol)){
+         oneAway[7] = getPointAtLocation(belowRow, rightCol);
+      } else {
+         oneAway[7] = null;
       }
 
       return oneAway;
+   }
+
+   public boolean pointExists(int row, int column){
+      return (row > 0 && row < rows && column > 0 && column < columns);
    }
 
    public boolean isAllBurntUp(){
