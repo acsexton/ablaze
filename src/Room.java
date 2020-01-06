@@ -99,8 +99,18 @@ public class Room extends WorldItem {
          if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
             flammable.ignite();
             itemsOnFire++;
+            fireLocations[getLastSpotInArray(fireLocations)] = point;
          }
       }
+   }
+
+   public boolean pointInFlammableLocations(Point point){
+      for (Point location : fireLocations) {
+         if (location == point) {
+            return true;
+         }
+      }
+      return false;
    }
 
    public void updateAlarm(Point point, FireAlarm alarm){
@@ -264,26 +274,38 @@ public class Room extends WorldItem {
       return (flammableItemCount == itemsOnFire);
    }
 
+   public int getLastSpotInArray(Point[] array){
+      int spot = -1;
+      for (int i = 0; i < array.length; i++){
+         if (array[i] == null){
+            spot = i;
+            break;
+         }
+      }
+      return spot;
+   }
+
    // TODO: Clean this up
    public String toString(){
       String output = "";
       for (int i = 0; i < rows; i++){
          for (int j = 0; j < columns; j++){
-            WorldItem item = getItemAtLocation(i, j);
+            Point point = getPointAtLocation(i, j);
             output += "|";
-            if (item instanceof Air){
-               output += " ";
+            if (point.getContainedItem() instanceof Air){
+//               output += " ";
+               output += point.getCurrentTemp();
             }
-            else if (item instanceof FireAlarm){
-               if (((FireAlarm) item).isAlerted()){
+            else if (point.getContainedItem() instanceof FireAlarm){
+               if (((FireAlarm) point.getContainedItem()).isAlerted()){
                   output += "!";
                } else {
                   output += "s";
                }
             }
             else{
-               if (item instanceof FlammableItem){
-                  if (((FlammableItem) item).isOnFire()){
+               if (point.getContainedItem() instanceof FlammableItem){
+                  if (((FlammableItem) point.getContainedItem()).isOnFire()){
                      output += "^";
                   } else {
                      output += "x";

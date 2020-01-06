@@ -11,6 +11,7 @@ public class Point {
    public Point(int row, int column, WorldItem containedItem){
       this.row = row;
       this.column = column;
+      this.currentTemp = DEFAULT_TEMP;
       this.containedItem = containedItem;
    }
 

@@ -32,12 +32,8 @@ public class Driver {
          // Wait a few turns
          if (turns == turnsBeforeIgnitingChair){
             // Light the chair
-            chair.ignite();
-            // For testing, set the number of items on fire manually because
-            // this is done in a class method.
-            int currentOnFire = testRoom.getItemsOnFire();
-            currentOnFire++;
-            testRoom.setItemsOnFire(currentOnFire);
+            Point testPoint = testRoom.getPointAtLocation(5, 7);
+            testPoint.setCurrentTemp(chair.getCombustionThreshold() + 50);
          }
          testRoom.update();
          System.out.println(testRoom);
