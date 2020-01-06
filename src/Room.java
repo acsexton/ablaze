@@ -66,6 +66,26 @@ public class Room extends WorldItem {
       return numOfFires;
    }
 
+   public void setNumOfFires(int numOfFires) {
+      this.numOfFires = numOfFires;
+   }
+
+   public int getFlammableItemCount() {
+      return flammableItemCount;
+   }
+
+   public void setFlammableItemCount(int flammableItemCount) {
+      this.flammableItemCount = flammableItemCount;
+   }
+
+   public int getItemsOnFire() {
+      return itemsOnFire;
+   }
+
+   public void setItemsOnFire(int itemsOnFire) {
+      this.itemsOnFire = itemsOnFire;
+   }
+
    public void placeItemInRoomAtCoords(WorldItem item, int row, int column){
       Point targetPoint = getPointAtLocation(row, column);
       targetPoint.setContainedItem(item);

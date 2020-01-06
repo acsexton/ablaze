@@ -23,13 +23,21 @@ public class Driver {
       int turns = 0;
       int turnsBeforeIgnitingChair = 4;
 
+      // Put a chair in the room
       FlammableItem chair = new FlammableItem("Chair");
       testRoom.placeItemInRoomAtCoords(chair, 5, 7);
 
       while (!testRoom.isAllBurntUp()){
          turns++;
+         // Wait a few turns
          if (turns == turnsBeforeIgnitingChair){
+            // Light the chair
             chair.ignite();
+            // For testing, set the number of items on fire manually because
+            // this is done in a class method.
+            int currentOnFire = testRoom.getItemsOnFire();
+            currentOnFire++;
+            testRoom.setItemsOnFire(currentOnFire);
          }
          testRoom.update();
          System.out.println(testRoom);
