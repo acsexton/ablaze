@@ -1,6 +1,6 @@
 public class NonFlammableItem extends WorldItem {
 
-   public NonFlammableItem(String name){
+   public NonFlammableItem(String name) {
       super(name);
    }
 

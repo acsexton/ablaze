@@ -6,7 +6,7 @@ public class FireAlarm extends NonFlammableItem {
    private int alarmThreshold;
    private boolean alerted;
 
-   public FireAlarm(){
+   public FireAlarm() {
       super(DEFAULT_SENSOR_NAME);
       alarmThreshold = DEFAULT_ALARM_THRESHOLD;
    }
@@ -19,11 +19,11 @@ public class FireAlarm extends NonFlammableItem {
       return alerted;
    }
 
-   public void triggerAlarm(){
+   public void triggerAlarm() {
       alerted = true;
    }
 
-   public void stopAlarm(){
+   public void stopAlarm() {
       alerted = false;
    }
 

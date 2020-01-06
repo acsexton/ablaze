@@ -1,6 +1,6 @@
 public class Air extends NonFlammableItem {
 
-   public Air(){
+   public Air() {
       super("air");
    }
 

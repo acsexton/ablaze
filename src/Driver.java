@@ -3,7 +3,7 @@ public class Driver {
    private static Room testRoom;
    private static FireAlarm sensor;
 
-   public static void buildRoomAndPlaceSensor(){
+   public static void buildRoomAndPlaceSensor() {
       // Room locations count from 0
       String roomName = "basicroom";
       int rows = 5;
@@ -19,7 +19,7 @@ public class Driver {
       testRoom.placeItemInRoomAtCoords(sensor, sensorRow, sensorColumn);
    }
 
-   public static void runSim(){
+   public static void runSim() {
       int turns = 0;
       int turnsBeforeIgnitingChair = 4;
 
@@ -27,10 +27,10 @@ public class Driver {
       FlammableItem chair = new FlammableItem("Chair");
       testRoom.placeItemInRoomAtCoords(chair, 5, 7);
 
-      while (!testRoom.isAllBurntUp()){
+      while (!testRoom.isAllBurntUp()) {
          turns++;
          // Wait a few turns
-         if (turns == turnsBeforeIgnitingChair){
+         if (turns == turnsBeforeIgnitingChair) {
             // Light the chair
             Point testPoint = testRoom.getPointAtLocation(5, 7);
             testPoint.setCurrentTemp(chair.getCombustionThreshold() + 50);

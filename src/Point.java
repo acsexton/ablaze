@@ -8,7 +8,7 @@ public class Point {
    private double currentTemp;
    private WorldItem containedItem;
 
-   public Point(int row, int column, WorldItem containedItem){
+   public Point(int row, int column, WorldItem containedItem) {
       this.row = row;
       this.column = column;
       this.currentTemp = DEFAULT_TEMP;
@@ -31,19 +31,19 @@ public class Point {
       currentTemp = DEFAULT_TEMP;
    }
 
-   public void setCurrentTemp(double newTemp){
+   public void setCurrentTemp(double newTemp) {
       currentTemp = newTemp;
    }
 
-   public void setContainedItem(WorldItem containedItem){
+   public void setContainedItem(WorldItem containedItem) {
       this.containedItem = containedItem;
    }
 
-   public WorldItem getContainedItem(){
+   public WorldItem getContainedItem() {
       return containedItem;
    }
 
-   public void update(){
+   public void update() {
    }
 
 }

@@ -5,25 +5,25 @@ public class FlammableItem extends WorldItem {
    private boolean onFire;
    private int combustionThreshold;
 
-   public FlammableItem(String name){
+   public FlammableItem(String name) {
       super(name);
       this.onFire = false;
       combustionThreshold = DEFAULT_COMBUSTION_THRESHOLD;
    }
 
-   public boolean isOnFire(){
+   public boolean isOnFire() {
       return onFire;
    }
 
-   public int getCombustionThreshold(){
+   public int getCombustionThreshold() {
       return combustionThreshold;
    }
 
-   public void ignite(){
+   public void ignite() {
       onFire = true;
    }
 
-   public void quench(){
+   public void quench() {
       onFire = false;
    }
 

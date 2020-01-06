@@ -1,53 +1,32 @@
-# Fire Alarm System #
+# Work In Progress: Fire Alarm System #
+This will be a physics-supported system for simulating heat distribution 
+within a room with flammable objects. When ignited, the heat will eventually 
+set off a sensor to alert registered users. 
 
-This is a simulation of a fire alarm system. It monitors data from temperature sensors in all connected rooms to determine whether a fire is occurring therein. If a temperature in a tracked room is high enough to indicate a fire is present, it will send a message to a designated recipient.
+The simulation is based on average temperatures in a local area as heat moves
+through air in a still room.
 
-## Current Capabilities ##
+## More about
+Though some sketches of this project began a year or so ago, I built this 
+current iteration over about a two week period during winter break 2019. Though 
+I intend to continue working on it, it is very much a work in progress.
 
-- None
+It currently uses as basic data structures as I can get away with (e.g. arrays 
+instead of ArrayLists) just to keep practice up.
 
-## Planned Capabilities ##
+### Todo
+* Polishing temperature calculation
+    * Things ignite when they should temperature-wise and the program is 
+    aware of ending once everything's on fire
+    * Still getting a handle on the specifics of the math, though.
+    * Cleaning up Room class logic -- a lot is handled there and not in the 
+    most readable organization approach
+* Sensor alert handling
+* Graphic display of room temperatures with console colors
+* User interface for placing and igniting items at will
 
-- Single room setup
-- Temperature monitoring
-- In-app alert system 
-- Multiple room / grid setup
-- Respond to requests for temperature in any room at request
-
-## Long-term goals ##
-
-- External alert system
-    - Email
-    - Text messaging
-- Tracking temperature in each room over time, building a 'heat map'
-- As proof of concept, include simulated fully-flammable environment (see below)
-
-
-# World Ablaze #
-
-As proof of concept, a small, simulated world in which any given object may 
-spontaneously erupt in flames.
-    
-<!-- TODO -->
-Conduction/convection heat distribution to sensor pick-up from python project
-    * Time / turns, item.updateStatus() in room spots
-Observer Pattern for sensors
-
-## Planned Capabilities ##
-
-- Hand-built 'map' with a grid of buildings and assorted objects
-    - Stationary objects which all have a chance to spontaneously combust, 
-    igniting a fire to test the alert system
-    - Mobile 'NPCs' which also have such a chance to combust
-    - Use of local alert just as it would function in a real-world system
-    - A local, simulated authority who may respond to and put out these fires
-- Interface
-    - Counter: "It has been [x] minutes since the last fire"
-    - Cursor-look tool to view object/NPC descriptions 
-    - Object descriptions and NPC names pulled randomly from a local file
-
-## Long-term goals ##
-
-- Procedurally generate the buildings within the environment
-- Procedurally generate the objects and NPCs within the environment
-- Rebuilding/replacing of the buildings and objects within the environment
+### References
+* [Fire Dynamics](https://www.nist.gov/el/fire-research-division-73300/firegov-fire-service/fire-dynamics)
+* [Burning Wastepaper Fire](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.132.3106&rep=rep1&type=pdf)
+* [Radiant Heat Transfer](https://pdhonline.com/courses/m312/Radiant%20Flux.pdf) 
+* [Convective Heat Transfer Coefficients](https://www.engineersedge.com/heat_transfer/convective_heat_transfer_coefficients__13378.htm)
