@@ -8,12 +8,13 @@ public class Driver {
       String roomName = "basicroom";
       int rows = 5;
       int columns = 7;
+      int numOfFires = 1;
 
       // Sensor location (also from 0)
       int sensorRow = 2;
       int sensorColumn = 3;
 
-      testRoom = new Room(roomName, rows, columns);
+      testRoom = new Room(roomName, rows, columns, numOfFires);
       sensor = new FireAlarm();
       testRoom.placeItemInRoomAtCoords(sensor, sensorRow, sensorColumn);
    }

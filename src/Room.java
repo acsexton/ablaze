@@ -2,16 +2,20 @@ public class Room extends WorldItem {
 
    private int rows;
    private int columns;
+   private int numOfFires;
    private int flammableItemCount;
    private int itemsOnFire;
+   private Point[] fireLocations;
    private Point[][] roomPoints;
 
-   public Room(String roomName, int rows, int columns){
+   public Room(String roomName, int rows, int columns, int numOfFires){
       super(roomName);
       this.rows = rows+1;
       this.columns = columns+1;
+      this.numOfFires = numOfFires;
       this.flammableItemCount = 0;
       this.itemsOnFire = 0;
+      fireLocations = new Point[numOfFires];
       roomPoints = new Point[this.rows][this.columns];
       fillRoomWithAir();
    }
@@ -40,6 +44,10 @@ public class Room extends WorldItem {
 
    public int getColumns() {
       return columns;
+   }
+
+   public int getNumOfFires(){
+      return numOfFires;
    }
 
    public void placeItemInRoomAtCoords(WorldItem item, int row, int column){
@@ -98,19 +106,54 @@ public class Room extends WorldItem {
       int kWDegreeIncrease = 100;
 
       // Temperature factors
-      int radQDot = calcRadQDot(point);
+      double radQDot = calcRadQDot(point);
       int convQDot = calcConvQDot(point);
-      int totalQDot = radQDot + convQDot;
+      double totalQDot = radQDot + convQDot;
 
       point.setCurrentTemp(kWDegreeIncrease*totalQDot);
    }
 
-   public int calcRadQDot(Point point){
-      return 1;
+   public double calcRadQDot(Point point){
+      int currentCol = point.getColumn();
+      int currentRow = point.getRow();
+      double minDist = 0;
+      for (Point fire : fireLocations){
+         int fireCol = fire.getColumn();
+         int fireRow = fire.getRow();
+         double dist = distFromFire(currentCol, currentRow, fireCol, fireRow);
+         if (dist < minDist){
+            minDist = dist;
+         }
+      }
+
+      // Xr * qDot for air in room
+      double xr = 0.15;
+      int qDot = 100;
+      double factor = (xr * qDot);
+
+      // Account for division by zero
+      if (minDist > 0){
+         return (factor / (4 * Math.PI * Math.pow(minDist, 2)));
+      } else {
+         return 0;
+      }
+
+   }
+
+   public double distFromFire(int x1, int y1, int x2, int y2){
+      return Math.sqrt(Math.pow((x2-x1), 2) + Math.pow((y2-y1), 2));
    }
 
    public int calcConvQDot(Point point){
       return 1;
+   }
+
+   public int getAverageSurroundingTemp(Point[] spacesOneAway){
+      int total = 0;
+      for (Point point : spacesOneAway){
+         total += point.getCurrentTemp();
+      }
+      return total / spacesOneAway.length;
    }
 
    public Point[] getSpacesOneAway(Point point){

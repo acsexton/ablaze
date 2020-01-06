@@ -5,7 +5,7 @@ public class Point {
    // Location and item data
    private final int row;
    private final int column;
-   private int currentTemp;
+   private double currentTemp;
    private WorldItem containedItem;
 
    public Point(int row, int column, WorldItem containedItem){
@@ -22,7 +22,7 @@ public class Point {
       return column;
    }
 
-   public int getCurrentTemp() {
+   public double getCurrentTemp() {
       return currentTemp;
    }
 
@@ -30,7 +30,7 @@ public class Point {
       currentTemp = DEFAULT_TEMP;
    }
 
-   public void setCurrentTemp(int newTemp){
+   public void setCurrentTemp(double newTemp){
       currentTemp = newTemp;
    }
 
