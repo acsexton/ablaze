@@ -22,6 +22,7 @@ instead of ArrayLists) just to keep practice up.
     * Cleaning up Room class logic -- a lot is handled there and not in the 
     most readable organization approach
 * Sensor alert handling
+* Framework for real world sensor responses and implementation
 * Graphic display of room temperatures with console colors
 * User interface for placing and igniting items at will
 
