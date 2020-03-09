@@ -1,4 +1,4 @@
-public class FireAlarm extends NonFlammableItem {
+public class FireAlarm extends NonFlammableItem implements Sensor {
 
    private static final String DEFAULT_SENSOR_NAME = "sensor";
    private static final int DEFAULT_ALARM_THRESHOLD = 100;
