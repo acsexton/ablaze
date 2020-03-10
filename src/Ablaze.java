@@ -1,9 +1,6 @@
-public class Driver {
+public class Ablaze {
 
-   private static Room testRoom;
-   private static FireAlarm sensor;
-
-   public static void buildRoomAndPlaceSensor() {
+   public static Room buildRoomWithSensor() {
       // Room locations count from 0
       String roomName = "basicroom";
       int rows = 5;
@@ -14,12 +11,13 @@ public class Driver {
       int sensorRow = 2;
       int sensorColumn = 3;
 
-      testRoom = new Room(roomName, rows, columns, numOfFires);
-      sensor = new FireAlarm();
+      Room testRoom = new Room(roomName, rows, columns, numOfFires);
+      FireAlarm sensor = new FireAlarm();
       testRoom.placeItemInRoomAtCoords(sensor, sensorRow, sensorColumn);
+      return testRoom;
    }
 
-   public static void runSim() {
+   public static void testSimWithChair(Room testRoom) {
       int turns = 0;
       int turnsBeforeIgnitingChair = 4;
 
@@ -41,8 +39,8 @@ public class Driver {
    }
 
    public static void main(String[] args) {
-      buildRoomAndPlaceSensor();
-      runSim();
+      Room testRoom = buildRoomWithSensor();
+      testSimWithChair(testRoom);
    }
 
 }
