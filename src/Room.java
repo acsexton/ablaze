@@ -262,6 +262,15 @@ public class Room extends WorldItem {
    // TODO: Clean this up
    public String toString() {
       String output = "";
+
+      // Cell-ify the room output
+      String finishRow = "";
+      for(int i = 0; i < columns; i++)
+         finishRow += "======";
+      finishRow += "=\n";
+
+      output += finishRow;
+
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
             Point point = getPointAtLocation(i, j);
@@ -292,7 +301,7 @@ public class Room extends WorldItem {
             }
             output += " " + RESET;
          }
-         output += "|\n";
+         output += "|\n" + finishRow;
       }
       return output;
    }
