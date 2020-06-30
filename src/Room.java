@@ -6,7 +6,11 @@ public class Room extends WorldItem {
    private int flammableItemCount;
    private int itemsOnFire;
    private Point[] fireLocations;
+   private Point[] sensorLocations;
    private Point[][] roomPoints;
+
+   // Reset string!
+   private final static String RESET = "\u001b[0m";
 
    // Math!
    private final static int SURROUNDING_POINTS_ON_GRID = 8;
@@ -153,10 +157,12 @@ public class Room extends WorldItem {
       double convQDot = calcConvQDot(point);
       double totalQDot = radQDot + convQDot;
 
-      point.setCurrentTemp(KW_DEGREE_INCREASE * totalQDot);
+      point.setCurrentTemp(point.getCurrentTemp() + (KW_DEGREE_INCREASE * totalQDot));
    }
 
    public double calcRadQDot(Point point) {
+      if(numOfFires == 0)
+         return 0;
       int currentCol = point.getColumn();
       int currentRow = point.getRow();
       double minDist = 0;
@@ -189,7 +195,7 @@ public class Room extends WorldItem {
 
    public double calcConvQDot(Point point) {
       Point[] oneAway = getSpacesOneAway(point);
-      int localAverage = getAverageSurroundingTemp(oneAway);
+      double localAverage = getAverageSurroundingTemp(oneAway);
       double currentTemp = point.getCurrentTemp();
 
       if (localAverage > currentTemp) {
@@ -199,14 +205,16 @@ public class Room extends WorldItem {
       }
    }
 
-   public int getAverageSurroundingTemp(Point[] spacesOneAway) {
-      int total = 0;
+   public double getAverageSurroundingTemp(Point[] spacesOneAway) {
+      double total = 0;
+      int numPoints = 0;
       for (Point point : spacesOneAway) {
          if (point != null) {
             total += point.getCurrentTemp();
+            numPoints++;
          }
       }
-      return total / spacesOneAway.length;
+      return total / numPoints;
    }
 
    public Point[] getSpacesOneAway(Point point) {
@@ -215,53 +223,19 @@ public class Room extends WorldItem {
 
       Point[] oneAway = new Point[SURROUNDING_POINTS_ON_GRID];
 
-      // Clockwise around point.
-      // TODO: Constant above is fine. Fix magic numbers...
-      int aboveRow = row - 1;
-      int belowRow = row + 1;
-      int leftCol = col + 1;
-      int rightCol = col - 1;
-      if (pointExists(aboveRow, leftCol)) {
-         oneAway[0] = getPointAtLocation(aboveRow, leftCol);
-         ;
-      } else {
-         oneAway[0] = null;
-      }
-      if (pointExists(aboveRow, col)) {
-         oneAway[1] = getPointAtLocation(aboveRow, col);
-      } else {
-         oneAway[1] = null;
-      }
-      if (pointExists(aboveRow, rightCol)) {
-         oneAway[2] = getPointAtLocation(aboveRow, rightCol);
-      } else {
-         oneAway[2] = null;
-      }
-      if (pointExists(row, leftCol)) {
-         oneAway[3] = getPointAtLocation(row, leftCol);
-      } else {
-         oneAway[3] = null;
-      }
-      if (pointExists(row, rightCol)) {
-         oneAway[4] = getPointAtLocation(row, rightCol);
-      } else {
-         oneAway[4] = null;
-      }
-      if (pointExists(belowRow, leftCol)) {
-         oneAway[5] = getPointAtLocation(belowRow, leftCol);
-      } else {
-         oneAway[5] = null;
-      }
-      if (pointExists(belowRow, col)) {
-         oneAway[6] = getPointAtLocation(belowRow, col);
-      } else {
-         oneAway[6] = null;
-      }
-      if (pointExists(belowRow, rightCol)) {
-         oneAway[7] = getPointAtLocation(belowRow, rightCol);
-      } else {
-         oneAway[7] = null;
-      }
+      int count = 0;
+
+      // Get all points that aren't the other points.
+      for(int i = row - 1; i <= row + 1; i++)
+         for(int j = col - 1; j <= col + 1; j++) {
+            if(i != row || j != col) {
+               if(pointExists(i, j))
+                  oneAway[count] = getPointAtLocation(i, j);
+               else
+                  oneAway[count] = null;
+               count++;
+            }
+         } // end nested for
 
       return oneAway;
    }
@@ -291,32 +265,52 @@ public class Room extends WorldItem {
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
             Point point = getPointAtLocation(i, j);
-            output += "|";
+            String clr = getColorString(point);
+            output += "|" + clr + " ";
             if (point.getContainedItem() instanceof Air) {
-//               output += " ";
-               output += point.getCurrentTemp();
+               String toAdd = "" + (int)point.getCurrentTemp();
+               if(toAdd.length() < 3)
+                  for(int loop = toAdd.length(); loop < 3; loop++)
+                     toAdd = " " + toAdd;
+               output += toAdd;
             } else if (point.getContainedItem() instanceof FireAlarm) {
                if (((FireAlarm) point.getContainedItem()).isAlerted()) {
-                  output += "!";
+                  output += " ! ";
                } else {
-                  output += "s";
+                  output += " s ";
                }
             } else {
                if (point.getContainedItem() instanceof FlammableItem) {
                   if (((FlammableItem) point.getContainedItem()).isOnFire()) {
-                     output += "^";
+                     output += " ^ ";
                   } else {
-                     output += "x";
+                     output += " x ";
                   }
                } else {
-                  output += "x";
+                  output += " x ";
                }
             }
-            output += "|";
+            output += " " + RESET;
          }
-         output += "\n";
+         output += "|\n";
       }
       return output;
    }
+
+   /**
+    * Creates a String which is used to display a command-line color (makes for better coloring).
+    * @param p - the point being displayed
+    * @return a String used for color formatting
+    */
+   private String getColorString(Point p) {
+      double temp = p.getCurrentTemp();
+      if(temp < 100)
+         return "";
+      if(temp < 200)
+         return "\u001b[42;1m";
+      if(temp < 300)
+         return "\u001b[43;1m";
+      return "\u001b[41;1m";
+   } // end getColorString()
 
 }
