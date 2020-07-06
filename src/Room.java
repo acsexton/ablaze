@@ -170,6 +170,7 @@ public class Room extends WorldItem {
    }
 
    public void calculatePointTemp(Point point) {
+      // TODO: Handle calculations in another class, Room should manage room responsibilities
       WorldItem containedItem = point.getContainedItem();
 
       // Maintain temperature if the item here is flammable and on fire

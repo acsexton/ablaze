@@ -14,11 +14,16 @@ public class FlammableItem extends WorldItem {
     * heat in the system */
    private final int combustionThreshold;
 
+   /** How many turns before spontaneous combustion (mostly for debugging purposes. mostly.) */
+   private final int turnsBeforeIgnition;
+
    /** Constructor -- items do not initialize as being on fire */
-   public FlammableItem(String name) {
+   public FlammableItem(String name, int turnsBeforeIgnition) {
       super(name);
       this.onFire = false;
+      this.turnsBeforeIgnition = turnsBeforeIgnition;
       combustionThreshold = DEFAULT_COMBUSTION_THRESHOLD;
+      // TODO: Add variable combustion thresholds
    }
 
    public boolean isOnFire() {
@@ -27,6 +32,10 @@ public class FlammableItem extends WorldItem {
 
    public int getCombustionThreshold() {
       return combustionThreshold;
+   }
+
+   public int getTurnsBeforeIgnition() {
+      return turnsBeforeIgnition;
    }
 
    public void ignite() {
