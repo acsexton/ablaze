@@ -7,8 +7,11 @@ public class SimulatedSensor extends NonFlammableItem implements Sensor {
    private static final String DEFAULT_SENSOR_NAME = "sensor";
    private static final int DEFAULT_ALARM_THRESHOLD = 100;
 
-   private final int alarmThreshold;   // The temperature at which the alarm will go off
-   private boolean alerted;      // True if the sensor has gone off
+   /** Temp at which alarm will go off */
+   private final int alarmThreshold;
+
+   /** Whether alarm has gone off */
+   private boolean alarmed;
 
    /** Base constructor for FireAlarm objects. */
    public SimulatedSensor() {
@@ -25,21 +28,21 @@ public class SimulatedSensor extends NonFlammableItem implements Sensor {
    } // end getAlarmThreshold()
 
    /**
-    * Checks if the alarm has been alerted.
-    * @return the value held by 'alerted'
+    * Checks if the alarm has been alarmed.
+    * @return the value held by 'alarmed'
     */
-   public boolean isAlerted() {
-      return alerted;
+   public boolean isAlarmed() {
+      return alarmed;
    } // end isAlerted()
 
    /** Lets the alarm know that it has been triggered */
    public void triggerAlarm() {
-      alerted = true;
+      alarmed = true;
    } // end triggerAlarm()
 
    /** Turns off the alarm */
    public void stopAlarm() {
-      alerted = false;
+      alarmed = false;
    } // end stopAlarm()
 
 } // end FireAlarm

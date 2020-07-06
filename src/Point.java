@@ -1,13 +1,20 @@
+/**
+ * Represents all points in the room's grid
+ */
 public class Point {
 
+   /** The default temperature for each point in the room */
    private static final int DEFAULT_TEMP = 72;
 
    // Location and item data
    private final int row;
    private final int column;
    private double currentTemp;
+
+   /** The item stored at the given point */
    private WorldItem containedItem;
 
+   /** Constructor for a point in the room, associating it with an item */
    public Point(int row, int column, WorldItem containedItem) {
       this.row = row;
       this.column = column;
@@ -27,6 +34,7 @@ public class Point {
       return currentTemp;
    }
 
+   /** Allows for the point in the room to be set back to default for debug purposes */
    public void resetTemp() {
       currentTemp = DEFAULT_TEMP;
    }

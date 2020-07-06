@@ -3,6 +3,7 @@
  */
 public class Ablaze {
 
+   /** Sensor for use in base simulation */
    private static SimulatedSensor sensor;
 
    /**
@@ -38,7 +39,7 @@ public class Ablaze {
       FlammableItem chair = new FlammableItem("Chair");
       testRoom.placeItemInRoomAtCoords(chair, 5, 7);
 
-      while (!sensor.isAlerted()) {
+      while (!sensor.isAlarmed()) {
          turns++;
          // Wait a few turns
          if (turns == turnsBeforeIgnitingChair) {

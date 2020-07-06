@@ -1,15 +1,21 @@
+/** Represents the room as a whole for the simulation */
 public class Room extends WorldItem {
 
+   // Room dimensions
    private final int rows;
    private final int columns;
+
+   // Tracking number of fires vs items vs how many of those items are on fire
    private int numOfFires;
    private int flammableItemCount;
    private int itemsOnFire;
+
+   // Locations of items in the room
    private final Point[][] roomPoints;
    private Point[] fireLocations;
    private Point[] sensorLocations;
 
-   // Reset string!
+   // Reset string for colors!
    private final static String RESET = "\u001b[0m";
 
    // Math!
@@ -22,7 +28,7 @@ public class Room extends WorldItem {
    // 1 kW raises temp by 100deg C assuming almost no air flow
    private final static int KW_DEGREE_INCREASE = 100;
 
-
+   /** Constructor, establishes room information and the number of fires within */
    public Room(String roomName, int rows, int columns, int numOfFires) {
       super(roomName);
       this.rows = rows + 1;
@@ -73,22 +79,29 @@ public class Room extends WorldItem {
       this.numOfFires = numOfFires;
    }
 
+   /** Return the number of flammable items in the room */
    public int getFlammableItemCount() {
       return flammableItemCount;
    }
 
+   /** Set the number of flammable items in the room */
    public void setFlammableItemCount(int flammableItemCount) {
       this.flammableItemCount = flammableItemCount;
    }
 
+   /** Return the number of flammable items in the room */
    public int getItemsOnFire() {
       return itemsOnFire;
    }
 
+   /** Set the number of items currently on fire in the room. Increment/decrement is handled by
+    * updateIgnition()  */
    public void setItemsOnFire(int itemsOnFire) {
       this.itemsOnFire = itemsOnFire;
    }
 
+   /** Add an item to the room at given coordinates, and if it's flammable, increase the number
+    * of flammable items in the room */
    public void placeItemInRoomAtCoords(WorldItem item, int row, int column) {
       Point targetPoint = getPointAtLocation(row, column);
       targetPoint.setContainedItem(item);
@@ -97,6 +110,8 @@ public class Room extends WorldItem {
       }
    }
 
+   /** Check whether an item at a given point should be on fire */
+   // TODO: Refactor to get point's contained item instead of second param
    public void updateIgnition(Point point, FlammableItem flammable) {
       if (!flammable.isOnFire()) {
          if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
@@ -107,6 +122,7 @@ public class Room extends WorldItem {
       }
    }
 
+   /** Check whether a given point is within the currently known locations for fires */
    public boolean pointInFlammableLocations(Point point) {
       for (Point location : fireLocations) {
          if (location == point) {
@@ -116,8 +132,9 @@ public class Room extends WorldItem {
       return false;
    }
 
+   /** Toggle the alarm as necessary */
    public void updateAlarm(Point point, SimulatedSensor alarm) {
-      if (!alarm.isAlerted()) {
+      if (!alarm.isAlarmed()) {
          if (point.getCurrentTemp() >= alarm.getAlarmThreshold()) {
             alarm.triggerAlarm();
          }
@@ -126,6 +143,7 @@ public class Room extends WorldItem {
       }
    }
 
+   /** Iterate through the points in the room and determine the temperature at each tick */
    public void update() {
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
@@ -160,6 +178,7 @@ public class Room extends WorldItem {
       point.setCurrentTemp(point.getCurrentTemp() + (KW_DEGREE_INCREASE * totalQDot));
    }
 
+   /** Calculate the radiative qdot */
    public double calcRadQDot(Point point) {
       if(numOfFires == 0)
          return 0;
@@ -189,10 +208,12 @@ public class Room extends WorldItem {
 
    }
 
+   /** Determine the distance of a given point from fire */
    public double distFromFire(int x1, int y1, int x2, int y2) {
       return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
    }
 
+   /** Calculate the convective q dot */
    public double calcConvQDot(Point point) {
       Point[] oneAway = getSpacesOneAway(point);
       double localAverage = getAverageSurroundingTemp(oneAway);
@@ -217,6 +238,7 @@ public class Room extends WorldItem {
       return total / numPoints;
    }
 
+   /** Get all points that are within one point away from the current point */
    public Point[] getSpacesOneAway(Point point) {
       int col = point.getColumn();
       int row = point.getRow();
@@ -240,10 +262,12 @@ public class Room extends WorldItem {
       return oneAway;
    }
 
+   /** Check whether a given point exists at the given row and column */
    public boolean pointExists(int row, int column) {
       return (row > 0 && row < rows && column > 0 && column < columns);
    }
 
+   /** Return whether there are any flammable items in the room that are not currently on fire */
    public boolean isAllBurntUp() {
       return (flammableItemCount == itemsOnFire);
    }
@@ -259,6 +283,7 @@ public class Room extends WorldItem {
       return spot;
    }
 
+   /** Generate string for room display */
    // TODO: Clean this up
    public String toString() {
       String output = "";
@@ -283,7 +308,7 @@ public class Room extends WorldItem {
                      toAdd = " " + toAdd;
                output += toAdd;
             } else if (point.getContainedItem() instanceof SimulatedSensor) {
-               if (((SimulatedSensor) point.getContainedItem()).isAlerted()) {
+               if (((SimulatedSensor) point.getContainedItem()).isAlarmed()) {
                   output += " ! ";
                } else {
                   output += " s ";
