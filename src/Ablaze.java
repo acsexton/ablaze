@@ -33,17 +33,18 @@ public class Ablaze {
     * Runs the simulation for a supplied room.
     * @param testRoom - the Room on which to run the simulation
     */
-   public static void testSimWithChair(Room testRoom, ArrayList<FlammableItem> flammableItems) {
+   public static void testSimWithChair(Room testRoom, ArrayList<Point> points) {
       int turns = 0;
 
       while (!sensor.isAlarmed()) {
          turns++;
 
-         for (FlammableItem item : flammableItems) {
+         for (Point point : points) {
+            FlammableItem item = (FlammableItem) point.getContainedItem();
             // Wait a few turns
             if (turns == item.getTurnsBeforeIgnition()) {
-               // Light it
-               item.ignite();
+               // Set the point hot enough to light the item
+               point.setCurrentTemp(item.getCombustionThreshold());
             } // end if
          }
          testRoom.update();
@@ -66,12 +67,12 @@ public class Ablaze {
       Room testRoom = buildRoomWithSensor(roomSize, sensorCoords);
 
       // List of flammable items
-      ArrayList<FlammableItem> flammableItems = new ArrayList<>();
+      ArrayList<Point> flammablePoints = new ArrayList<>();
 
       int itemCounter = 0;
 
       int numItemsToPlace = ui.selectNumItemsToPlace();
-      while (itemCounter <= numItemsToPlace) {
+      while (itemCounter < numItemsToPlace) {
 
          int[] itemCoords = ui.selectPointForItem();
          int row = itemCoords[0];
@@ -80,7 +81,8 @@ public class Ablaze {
          if (ui.setItemFlammable()){
             int turns = ui.selectNumOfTurnsBeforeIgnition();
             FlammableItem flammable = new FlammableItem("Chair", turns);
-            flammableItems.add(flammable);
+            testRoom.placeItemInRoomAtCoords(flammable, row, column);
+            flammablePoints.add(testRoom.getPointAtLocation(row, column));
          } else {
             NonFlammableItem nonFlam = new NonFlammableItem("Chair");
             testRoom.placeItemInRoomAtCoords(nonFlam, row, column);
@@ -90,7 +92,7 @@ public class Ablaze {
          itemCounter++;
       }
 
-      testSimWithChair(testRoom, flammableItems);
+      testSimWithChair(testRoom, flammablePoints);
 
    } // end main()
 

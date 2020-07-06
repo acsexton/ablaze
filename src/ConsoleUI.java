@@ -16,6 +16,7 @@ public class ConsoleUI implements UI {
 
    @Override
    public boolean setItemFlammable() {
+      input.nextLine(); // flush from previous nextInt
       String flammable = "";
       while (!flammable.equals("y") && !flammable.equals("n")) {
          System.out.println("Would you like this item to be flammable? y/n");
@@ -46,7 +47,7 @@ public class ConsoleUI implements UI {
 
    @Override
    public int selectNumOfTurnsBeforeIgnition() {
-      System.out.println("How many turns before igniting your item?");
+      System.out.println("On which turn should this item ignite?");
       return input.nextInt();
    }
 

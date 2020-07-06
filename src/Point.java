@@ -13,6 +13,7 @@ public class Point {
 
    /** The item stored at the given point */
    private WorldItem containedItem;
+   // TODO: Allow for single item and a sensor on the point
 
    /** Constructor for a point in the room, associating it with an item */
    public Point(int row, int column, WorldItem containedItem) {
