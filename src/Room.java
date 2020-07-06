@@ -1,16 +1,19 @@
+/** Represents the room as a whole for the simulation */
 public class Room extends WorldItem {
 
-   private int rows;
-   private int columns;
+   // Room dimensions
+   private final int rows;
+   private final int columns;
+
+   // Tracking number of fires vs items vs how many of those items are on fire
    private int numOfFires;
    private int flammableItemCount;
    private int itemsOnFire;
+
+   // Locations of items in the room
+   private final Point[][] roomPoints;
    private Point[] fireLocations;
    private Point[] sensorLocations;
-   private Point[][] roomPoints;
-
-   // Reset string!
-   private final static String RESET = "\u001b[0m";
 
    // Math!
    private final static int SURROUNDING_POINTS_ON_GRID = 8;
@@ -22,15 +25,15 @@ public class Room extends WorldItem {
    // 1 kW raises temp by 100deg C assuming almost no air flow
    private final static int KW_DEGREE_INCREASE = 100;
 
-
+   /** Constructor, establishes room information and the number of fires within */
    public Room(String roomName, int rows, int columns, int numOfFires) {
       super(roomName);
       this.rows = rows + 1;
       this.columns = columns + 1;
-      this.numOfFires = numOfFires;
+      this.numOfFires = numOfFires;  // TODO: Find way to handle this dynamically?
       this.flammableItemCount = 0;
       this.itemsOnFire = 0;
-      fireLocations = new Point[numOfFires];
+      fireLocations = new Point[numOfFires];  // TODO: Work with above, handle dynamically?
       roomPoints = new Point[this.rows][this.columns];
       fillRoomWithAir();
    }
@@ -73,22 +76,29 @@ public class Room extends WorldItem {
       this.numOfFires = numOfFires;
    }
 
+   /** Return the number of flammable items in the room */
    public int getFlammableItemCount() {
       return flammableItemCount;
    }
 
+   /** Set the number of flammable items in the room */
    public void setFlammableItemCount(int flammableItemCount) {
       this.flammableItemCount = flammableItemCount;
    }
 
+   /** Return the number of flammable items in the room */
    public int getItemsOnFire() {
       return itemsOnFire;
    }
 
+   /** Set the number of items currently on fire in the room. Increment/decrement is handled by
+    * updateIgnition()  */
    public void setItemsOnFire(int itemsOnFire) {
       this.itemsOnFire = itemsOnFire;
    }
 
+   /** Add an item to the room at given coordinates, and if it's flammable, increase the number
+    * of flammable items in the room */
    public void placeItemInRoomAtCoords(WorldItem item, int row, int column) {
       Point targetPoint = getPointAtLocation(row, column);
       targetPoint.setContainedItem(item);
@@ -97,16 +107,22 @@ public class Room extends WorldItem {
       }
    }
 
-   public void updateIgnition(Point point, FlammableItem flammable) {
-      if (!flammable.isOnFire()) {
-         if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
-            flammable.ignite();
-            itemsOnFire++;
-            fireLocations[getLastSpotInArray(fireLocations)] = point;
+   /** Check whether an item at a given point should be on fire */
+   public void updateIgnition(Point point) {
+      WorldItem item = point.getContainedItem();
+      if (item instanceof FlammableItem) {
+         FlammableItem flammable = (FlammableItem) item;
+         if (!flammable.isOnFire()) {
+            if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
+               flammable.ignite();
+               itemsOnFire++;
+               fireLocations[getLastSpotInArray(fireLocations)] = point;
+            }
          }
       }
    }
 
+   /** Check whether a given point is within the currently known locations for fires */
    public boolean pointInFlammableLocations(Point point) {
       for (Point location : fireLocations) {
          if (location == point) {
@@ -116,33 +132,40 @@ public class Room extends WorldItem {
       return false;
    }
 
-   public void updateAlarm(Point point, FireAlarm alarm) {
-      if (!alarm.isAlerted()) {
-         if (point.getCurrentTemp() >= alarm.getAlarmThreshold()) {
-            alarm.triggerAlarm();
+   /** Toggle the alarm as necessary */
+   public void updateAlarm(Point point) {
+      WorldItem item = point.getContainedItem();
+      if (item instanceof Sensor) {
+         Sensor alarm = (Sensor) item;
+         if (!alarm.isAlarmed()) {
+            if (point.getCurrentTemp() >= alarm.getAlarmThreshold()) {
+               alarm.triggerAlarm();
+            }
+         } else if (point.getCurrentTemp() < alarm.getAlarmThreshold()) {
+            alarm.stopAlarm();
          }
-      } else if (point.getCurrentTemp() < alarm.getAlarmThreshold()) {
-         alarm.stopAlarm();
       }
    }
 
+   /** Iterate through the points in the room and determine the temperature at each tick */
    public void update() {
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
             Point point = getPointAtLocation(i, j);
-            WorldItem item = getItemAtLocation(i, j);
+            WorldItem item = point.getContainedItem();
             calculatePointTemp(point);
             point.update();
             if (item instanceof FlammableItem) {
-               updateIgnition(point, (FlammableItem) item);
-            } else if (item instanceof FireAlarm) {
-               updateAlarm(point, (FireAlarm) item);
+               updateIgnition(point);
+            } else if (item instanceof SimulatedSensor) {
+               updateAlarm(point);
             }
          }
       }
    }
 
    public void calculatePointTemp(Point point) {
+      // TODO: Handle calculations in another class, Room should manage room responsibilities
       WorldItem containedItem = point.getContainedItem();
 
       // Maintain temperature if the item here is flammable and on fire
@@ -160,6 +183,7 @@ public class Room extends WorldItem {
       point.setCurrentTemp(point.getCurrentTemp() + (KW_DEGREE_INCREASE * totalQDot));
    }
 
+   /** Calculate the radiative qdot */
    public double calcRadQDot(Point point) {
       if(numOfFires == 0)
          return 0;
@@ -189,10 +213,12 @@ public class Room extends WorldItem {
 
    }
 
+   /** Determine the distance of a given point from fire */
    public double distFromFire(int x1, int y1, int x2, int y2) {
       return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
    }
 
+   /** Calculate the convective q dot */
    public double calcConvQDot(Point point) {
       Point[] oneAway = getSpacesOneAway(point);
       double localAverage = getAverageSurroundingTemp(oneAway);
@@ -217,6 +243,7 @@ public class Room extends WorldItem {
       return total / numPoints;
    }
 
+   /** Get all points that are within one point away from the current point */
    public Point[] getSpacesOneAway(Point point) {
       int col = point.getColumn();
       int row = point.getRow();
@@ -240,10 +267,12 @@ public class Room extends WorldItem {
       return oneAway;
    }
 
+   /** Check whether a given point exists at the given row and column */
    public boolean pointExists(int row, int column) {
       return (row > 0 && row < rows && column > 0 && column < columns);
    }
 
+   /** Return whether there are any flammable items in the room that are not currently on fire */
    public boolean isAllBurntUp() {
       return (flammableItemCount == itemsOnFire);
    }
@@ -258,68 +287,5 @@ public class Room extends WorldItem {
       }
       return spot;
    }
-
-   // TODO: Clean this up
-   public String toString() {
-      String output = "";
-
-      // Cell-ify the room output
-      String finishRow = "";
-      for(int i = 0; i < columns; i++)
-         finishRow += "======";
-      finishRow += "=\n";
-
-      output += finishRow;
-
-      for (int i = 0; i < rows; i++) {
-         for (int j = 0; j < columns; j++) {
-            Point point = getPointAtLocation(i, j);
-            String clr = getColorString(point);
-            output += "|" + clr + " ";
-            if (point.getContainedItem() instanceof Air) {
-               String toAdd = "" + (int)point.getCurrentTemp();
-               if(toAdd.length() < 3)
-                  for(int loop = toAdd.length(); loop < 3; loop++)
-                     toAdd = " " + toAdd;
-               output += toAdd;
-            } else if (point.getContainedItem() instanceof FireAlarm) {
-               if (((FireAlarm) point.getContainedItem()).isAlerted()) {
-                  output += " ! ";
-               } else {
-                  output += " s ";
-               }
-            } else {
-               if (point.getContainedItem() instanceof FlammableItem) {
-                  if (((FlammableItem) point.getContainedItem()).isOnFire()) {
-                     output += " ^ ";
-                  } else {
-                     output += " x ";
-                  }
-               } else {
-                  output += " x ";
-               }
-            }
-            output += " " + RESET;
-         }
-         output += "|\n" + finishRow;
-      }
-      return output;
-   }
-
-   /**
-    * Creates a String which is used to display a command-line color (makes for better coloring).
-    * @param p - the point being displayed
-    * @return a String used for color formatting
-    */
-   private String getColorString(Point p) {
-      double temp = p.getCurrentTemp();
-      if(temp < 100)
-         return "";
-      if(temp < 200)
-         return "\u001b[42;1m";
-      if(temp < 300)
-         return "\u001b[43;1m";
-      return "\u001b[41;1m";
-   } // end getColorString()
 
 }

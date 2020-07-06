@@ -1,63 +1,109 @@
+import java.util.ArrayList;
+
 /**
  * Main driver class. Creates a room and a test sim to see if things work correctly.
  */
 public class Ablaze {
 
-   private static FireAlarm sensor;
+   // UI
+   private static UI ui;
+
+   // Room
+   private static Room room;
+
+   // Sensor location
+   private static Sensor sensor;
+
+   // List of flammable items
+   private static final ArrayList<Point> flammablePoints = new ArrayList<>();
 
    /**
     * Method in charge of building a basic room with a fire and a sensor (with set locations).
-    * @return a newly instantiated Room
     */
-   public static Room buildRoomWithSensor() {
+   public static void buildRoom(UI ui) {
+      // Get room size
+      int[] roomSize = ui.selectRoomSize();
+
       // Room locations count from 0
       String roomName = "basicroom";
-      int rows = 5;
-      int columns = 7;
+      int rows = roomSize[0];
+      int columns = roomSize[1];
       int numOfFires = 1;
 
-      // Sensor location (also from 0)
-      int sensorRow = 2;
-      int sensorColumn = 3;
-
-      Room testRoom = new Room(roomName, rows, columns, numOfFires);
-      sensor = new FireAlarm();
-      testRoom.placeItemInRoomAtCoords(sensor, sensorRow, sensorColumn);
-      return testRoom;
-   } // end buildRoomWithSensor()
+      room = new Room(roomName, rows, columns, numOfFires);
+   }
 
    /**
-    * Runs the simulation for a supplied room.
-    * @param testRoom - the Room on which to run the simulation
+    * Request and place items in the current room
     */
-   public static void testSimWithChair(Room testRoom) {
+   public static void fillRoomWithStuff() {
+
+      // Place Sensor
+      int[] sensorCoords = ui.selectPointForSensor();
+      int sensorRow = sensorCoords[0];
+      int sensorColumn = sensorCoords[1];
+
+      sensor = new SimulatedSensor();
+      room.placeItemInRoomAtCoords((WorldItem) sensor, sensorRow, sensorColumn);
+
+      int itemCounter = 0;
+      int numItemsToPlace = ui.selectNumItemsToPlace();
+
+      while (itemCounter < numItemsToPlace) {
+
+         int[] itemCoords = ui.selectPointForItem();
+         int row = itemCoords[0];
+         int column = itemCoords[1];
+
+         if (ui.setItemFlammable()) {
+            int turns = ui.selectNumOfTurnsBeforeIgnition();
+            FlammableItem flammable = new FlammableItem("Chair", turns);
+            room.placeItemInRoomAtCoords(flammable, row, column);
+            flammablePoints.add(room.getPointAtLocation(row, column));
+         } else {
+            NonFlammableItem nonFlam = new NonFlammableItem("Chair");
+            room.placeItemInRoomAtCoords(nonFlam, row, column);
+         }
+
+         // Put a chair in the room
+         itemCounter++;
+      }
+   }
+
+   /**
+    * Runs the simulation for a supplied room until sensor is in alarm status
+    */
+   public static void runSimUntilAlarmed() {
       int turns = 0;
-      int turnsBeforeIgnitingChair = 4;
 
-      // Put a chair in the room
-      FlammableItem chair = new FlammableItem("Chair");
-      testRoom.placeItemInRoomAtCoords(chair, 5, 7);
-
-      while (!sensor.isAlerted()) {
+      while (!sensor.isAlarmed()) {
          turns++;
-         // Wait a few turns
-         if (turns == turnsBeforeIgnitingChair) {
-            // Light the chair
-            Point testPoint = testRoom.getPointAtLocation(5, 7);
-            testPoint.setCurrentTemp(chair.getCombustionThreshold() + 50);
-         } // end if
-         testRoom.update();
-         System.out.println(testRoom);
+
+         for (Point point : flammablePoints) {
+            FlammableItem item = (FlammableItem) point.getContainedItem();
+            // Wait a few turns
+            if (turns == item.getTurnsBeforeIgnition()) {
+               // Set the point hot enough to light the item
+               point.setCurrentTemp(item.getCombustionThreshold());
+            } // end if
+         }
+         room.update();
+         ui.drawRoom(room);
+
       } // end while
    } // end testSimWithChair()
 
    /**
     * Main entry method. Runs a basic simulation with set locations.
+    *
     * @param args - any supplied arguments (unused)
     */
    public static void main(String[] args) {
-      Room testRoom = buildRoomWithSensor();
-      testSimWithChair(testRoom);
+      ui = new ConsoleUI();
+      buildRoom(ui);
+      fillRoomWithStuff();
+      runSimUntilAlarmed();
+
    } // end main()
 
 } // end Ablaze
