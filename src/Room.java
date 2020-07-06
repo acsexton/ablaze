@@ -111,13 +111,16 @@ public class Room extends WorldItem {
    }
 
    /** Check whether an item at a given point should be on fire */
-   // TODO: Refactor to get point's contained item instead of second param
-   public void updateIgnition(Point point, FlammableItem flammable) {
-      if (!flammable.isOnFire()) {
-         if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
-            flammable.ignite();
-            itemsOnFire++;
-            fireLocations[getLastSpotInArray(fireLocations)] = point;
+   public void updateIgnition(Point point) {
+      WorldItem item = point.getContainedItem();
+      if (item instanceof FlammableItem) {
+         FlammableItem flammable = (FlammableItem) item;
+         if (!flammable.isOnFire()) {
+            if (point.getCurrentTemp() >= flammable.getCombustionThreshold()) {
+               flammable.ignite();
+               itemsOnFire++;
+               fireLocations[getLastSpotInArray(fireLocations)] = point;
+            }
          }
       }
    }
@@ -133,13 +136,17 @@ public class Room extends WorldItem {
    }
 
    /** Toggle the alarm as necessary */
-   public void updateAlarm(Point point, SimulatedSensor alarm) {
-      if (!alarm.isAlarmed()) {
-         if (point.getCurrentTemp() >= alarm.getAlarmThreshold()) {
-            alarm.triggerAlarm();
+   public void updateAlarm(Point point) {
+      WorldItem item = point.getContainedItem();
+      if (item instanceof Sensor) {
+         Sensor alarm = (Sensor) item;
+         if (!alarm.isAlarmed()) {
+            if (point.getCurrentTemp() >= alarm.getAlarmThreshold()) {
+               alarm.triggerAlarm();
+            }
+         } else if (point.getCurrentTemp() < alarm.getAlarmThreshold()) {
+            alarm.stopAlarm();
          }
-      } else if (point.getCurrentTemp() < alarm.getAlarmThreshold()) {
-         alarm.stopAlarm();
       }
    }
 
@@ -148,13 +155,15 @@ public class Room extends WorldItem {
       for (int i = 0; i < rows; i++) {
          for (int j = 0; j < columns; j++) {
             Point point = getPointAtLocation(i, j);
-            WorldItem item = getItemAtLocation(i, j);
+            WorldItem item = point.getContainedItem();
             calculatePointTemp(point);
             point.update();
+            // TODO: Presumes only one item per 'spot', should an alarm be in the same place as
+            //  an item?
             if (item instanceof FlammableItem) {
-               updateIgnition(point, (FlammableItem) item);
+               updateIgnition(point);
             } else if (item instanceof SimulatedSensor) {
-               updateAlarm(point, (SimulatedSensor) item);
+               updateAlarm(point);
             }
          }
       }
