@@ -19,7 +19,6 @@ public class Ablaze {
 
    /**
     * Method in charge of building a basic room with a fire and a sensor (with set locations).
-    * @return a newly instantiated Room
     */
    public static void buildRoom(UI ui) {
       // Get room size
@@ -29,7 +28,7 @@ public class Ablaze {
       String roomName = "basicroom";
       int rows = roomSize[0];
       int columns = roomSize[1];
-      int numOfFires = 1;  // TODO: Remove this
+      int numOfFires = 1;
 
       room = new Room(roomName, rows, columns, numOfFires);
    }
@@ -56,7 +55,7 @@ public class Ablaze {
          int row = itemCoords[0];
          int column = itemCoords[1];
 
-         if (ui.setItemFlammable()){
+         if (ui.setItemFlammable()) {
             int turns = ui.selectNumOfTurnsBeforeIgnition();
             FlammableItem flammable = new FlammableItem("Chair", turns);
             room.placeItemInRoomAtCoords(flammable, row, column);
@@ -70,7 +69,6 @@ public class Ablaze {
          itemCounter++;
       }
    }
-
 
    /**
     * Runs the simulation for a supplied room until sensor is in alarm status
@@ -90,12 +88,14 @@ public class Ablaze {
             } // end if
          }
          room.update();
-         System.out.println(room);
+         ui.drawRoom(room);
+
       } // end while
    } // end testSimWithChair()
 
    /**
     * Main entry method. Runs a basic simulation with set locations.
+    *
     * @param args - any supplied arguments (unused)
     */
    public static void main(String[] args) {

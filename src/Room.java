@@ -15,9 +15,6 @@ public class Room extends WorldItem {
    private Point[] fireLocations;
    private Point[] sensorLocations;
 
-   // Reset string for colors!
-   private final static String RESET = "\u001b[0m";
-
    // Math!
    private final static int SURROUNDING_POINTS_ON_GRID = 8;
 
@@ -33,10 +30,10 @@ public class Room extends WorldItem {
       super(roomName);
       this.rows = rows + 1;
       this.columns = columns + 1;
-      this.numOfFires = numOfFires;
+      this.numOfFires = numOfFires;  // TODO: Find way to handle this dynamically?
       this.flammableItemCount = 0;
       this.itemsOnFire = 0;
-      fireLocations = new Point[numOfFires];
+      fireLocations = new Point[numOfFires];  // TODO: Work with above, handle dynamically?
       roomPoints = new Point[this.rows][this.columns];
       fillRoomWithAir();
    }
@@ -158,8 +155,6 @@ public class Room extends WorldItem {
             WorldItem item = point.getContainedItem();
             calculatePointTemp(point);
             point.update();
-            // TODO: Presumes only one item per 'spot', should an alarm be in the same place as
-            //  an item?
             if (item instanceof FlammableItem) {
                updateIgnition(point);
             } else if (item instanceof SimulatedSensor) {
@@ -292,69 +287,5 @@ public class Room extends WorldItem {
       }
       return spot;
    }
-
-   /** Generate string for room display */
-   // TODO: Clean this up
-   public String toString() {
-      String output = "";
-
-      // Cell-ify the room output
-      String finishRow = "";
-      for(int i = 0; i < columns; i++)
-         finishRow += "======";
-      finishRow += "=\n";
-
-      output += finishRow;
-
-      for (int i = 0; i < rows; i++) {
-         for (int j = 0; j < columns; j++) {
-            Point point = getPointAtLocation(i, j);
-            String clr = getColorString(point);
-            output += "|" + clr + " ";
-            if (point.getContainedItem() instanceof Air) {
-               String toAdd = "" + (int)point.getCurrentTemp();
-               if(toAdd.length() < 3)
-                  for(int loop = toAdd.length(); loop < 3; loop++)
-                     toAdd = " " + toAdd;
-               output += toAdd;
-            } else if (point.getContainedItem() instanceof SimulatedSensor) {
-               if (((SimulatedSensor) point.getContainedItem()).isAlarmed()) {
-                  output += " ! ";
-               } else {
-                  output += " s ";
-               }
-            } else {
-               if (point.getContainedItem() instanceof FlammableItem) {
-                  if (((FlammableItem) point.getContainedItem()).isOnFire()) {
-                     output += " ^ ";
-                  } else {
-                     output += " x ";
-                  }
-               } else {
-                  output += " x ";
-               }
-            }
-            output += " " + RESET;
-         }
-         output += "|\n" + finishRow;
-      }
-      return output;
-   }
-
-   /**
-    * Creates a String which is used to display a command-line color (makes for better coloring).
-    * @param p - the point being displayed
-    * @return a String used for color formatting
-    */
-   private String getColorString(Point p) {
-      double temp = p.getCurrentTemp();
-      if(temp < 100)
-         return "";
-      if(temp < 200)
-         return "\u001b[42;1m";
-      if(temp < 300)
-         return "\u001b[43;1m";
-      return "\u001b[41;1m";
-   } // end getColorString()
 
 }
