@@ -1,17 +1,17 @@
 /**
  * Class which extends the functionality of a non-flammable item to make it work as a sensor.
  */
-public class FireAlarm extends NonFlammableItem implements Sensor {
+public class SimulatedSensor extends NonFlammableItem implements Sensor {
 
    /** Base values for the sensor. */
    private static final String DEFAULT_SENSOR_NAME = "sensor";
    private static final int DEFAULT_ALARM_THRESHOLD = 100;
 
-   private int alarmThreshold;   // The temperature at which the alarm will go off
+   private final int alarmThreshold;   // The temperature at which the alarm will go off
    private boolean alerted;      // True if the sensor has gone off
 
    /** Base constructor for FireAlarm objects. */
-   public FireAlarm() {
+   public SimulatedSensor() {
       super(DEFAULT_SENSOR_NAME);
       alarmThreshold = DEFAULT_ALARM_THRESHOLD;
    } // end FireAlarm()

@@ -3,7 +3,7 @@ public class FlammableItem extends WorldItem {
    private static final int DEFAULT_COMBUSTION_THRESHOLD = 451;
 
    private boolean onFire;
-   private int combustionThreshold;
+   private final int combustionThreshold;
 
    public FlammableItem(String name) {
       super(name);

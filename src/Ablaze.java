@@ -3,7 +3,7 @@
  */
 public class Ablaze {
 
-   private static FireAlarm sensor;
+   private static SimulatedSensor sensor;
 
    /**
     * Method in charge of building a basic room with a fire and a sensor (with set locations).
@@ -21,7 +21,7 @@ public class Ablaze {
       int sensorColumn = 3;
 
       Room testRoom = new Room(roomName, rows, columns, numOfFires);
-      sensor = new FireAlarm();
+      sensor = new SimulatedSensor();
       testRoom.placeItemInRoomAtCoords(sensor, sensorRow, sensorColumn);
       return testRoom;
    } // end buildRoomWithSensor()

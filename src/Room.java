@@ -1,13 +1,13 @@
 public class Room extends WorldItem {
 
-   private int rows;
-   private int columns;
+   private final int rows;
+   private final int columns;
    private int numOfFires;
    private int flammableItemCount;
    private int itemsOnFire;
+   private final Point[][] roomPoints;
    private Point[] fireLocations;
    private Point[] sensorLocations;
-   private Point[][] roomPoints;
 
    // Reset string!
    private final static String RESET = "\u001b[0m";
@@ -116,7 +116,7 @@ public class Room extends WorldItem {
       return false;
    }
 
-   public void updateAlarm(Point point, FireAlarm alarm) {
+   public void updateAlarm(Point point, SimulatedSensor alarm) {
       if (!alarm.isAlerted()) {
          if (point.getCurrentTemp() >= alarm.getAlarmThreshold()) {
             alarm.triggerAlarm();
@@ -135,8 +135,8 @@ public class Room extends WorldItem {
             point.update();
             if (item instanceof FlammableItem) {
                updateIgnition(point, (FlammableItem) item);
-            } else if (item instanceof FireAlarm) {
-               updateAlarm(point, (FireAlarm) item);
+            } else if (item instanceof SimulatedSensor) {
+               updateAlarm(point, (SimulatedSensor) item);
             }
          }
       }
@@ -282,8 +282,8 @@ public class Room extends WorldItem {
                   for(int loop = toAdd.length(); loop < 3; loop++)
                      toAdd = " " + toAdd;
                output += toAdd;
-            } else if (point.getContainedItem() instanceof FireAlarm) {
-               if (((FireAlarm) point.getContainedItem()).isAlerted()) {
+            } else if (point.getContainedItem() instanceof SimulatedSensor) {
+               if (((SimulatedSensor) point.getContainedItem()).isAlerted()) {
                   output += " ! ";
                } else {
                   output += " s ";
